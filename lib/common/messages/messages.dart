@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 abstract class MessagesApp {
+  //errors user
   static const errorPasswordMistach = 'Senha e Confirmação não conferem!';
   static const errorUserExist = 'Usuário Já Castrado!';
   static const errorUserNoExist = 'Usuário Não Castrado!';
@@ -10,6 +11,12 @@ abstract class MessagesApp {
   static const successUserInsert = 'Usuário Cadastrado!';
   static const successUserUpdate = 'Usuário Atualizado!';
   static const successUserDelete = 'Usuário Apagado!';
+
+  //errors book
+  static const successBooKInsert = 'Livro cadastrado!';
+  static const errorBookExist = 'Livro já foi cadastrado!';
+
+
   static showCustom(
     BuildContext context,
     String message, {

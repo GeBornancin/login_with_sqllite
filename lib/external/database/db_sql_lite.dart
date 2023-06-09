@@ -1,4 +1,7 @@
+import 'package:login_with_sqllite/external/database/book_table_schema.dart';
 import 'package:login_with_sqllite/external/database/user_table_schema.dart';
+import 'package:login_with_sqllite/model/book_mapper.dart';
+import 'package:login_with_sqllite/model/book_model.dart';
 import 'package:login_with_sqllite/model/user_mapper.dart';
 import 'package:login_with_sqllite/model/user_model.dart';
 import 'package:path/path.dart';
@@ -33,10 +36,13 @@ class SqlLiteDb {
   }
 
   // executa script de criacao de tabelas
-  Future<void> _onCreateSchema(Database db, int? versao) async {
-    await db.execute(UserTableSchema.createUserTableScript());
-  }
-
+ Future<void> _onCreateSchema(Database db, int? version) async {
+  print('Executing UserTableSchema');
+  await db.execute(UserTableSchema.createUserTableScript());
+  
+  print('Executing BookTableSchema');
+  await db.execute(BookTableSchema.createBookTableScript());
+}
   Future<int> saveUser(UserModel user) async {
     var dbClient = await dbInstance;
     var res = await dbClient.insert(
@@ -82,4 +88,39 @@ class SqlLiteDb {
 
     return null;
   }
+  
+ Future<int> saveBook(BookModel book) async {
+  var dbClient = await dbInstance;
+  var res = await dbClient.insert(
+    BookTableSchema.nameTable,
+    BookMapper.toMapBD(book),
+  );
+
+  print('BOOK saved. Result: $res');
+  return res;
+}
+
+Future<List<BookModel>> getBooksByUserId(String userId) async {
+  var dbClient = await dbInstance;
+  var res = await dbClient.query(
+    BookTableSchema.nameTable,
+    where: '${BookTableSchema.userIDColumn} = ?',
+    whereArgs: [userId],
+  );
+
+  return res.map((e) => BookMapper.fromMapBD(e)).toList();
+}
+
+Future<int> updateBook(BookModel book) async {
+    var dbClient = await dbInstance;
+    var res = await dbClient.update(
+      BookTableSchema.nameTable,
+      BookMapper.toMapBD(book),
+      where: '${BookTableSchema.bookIDColumn} = ?',
+      whereArgs: [book.bookId],
+    );
+    return res;
+  }
+  
+    
 }

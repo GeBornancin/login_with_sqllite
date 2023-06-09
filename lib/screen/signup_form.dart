@@ -48,21 +48,24 @@ class _SignUpState extends State<SignUp> {
         userEmail: _userEmailController.text.trim(),
         userPassword: _userPasswordController.text.trim(),
       );
+       print('user ID: ${user.userId}');
 
       final db = SqlLiteDb();
       db.saveUser(user).then(
         (value) {
+          print('User saved successfully: $value');
           AwesomeDialog(
             context: context,
             headerAnimationLoop: false,
             dialogType: DialogType.success,
             title: MessagesApp.successUserInsert,
             btnOkOnPress: () => Navigator.pushNamedAndRemoveUntil(
-                context, RoutesApp.home, (Route<dynamic> route) => false),
+                context, RoutesApp.loginSgnIn, (Route<dynamic> route) => false),
             btnOkText: 'OK',
           ).show(); // Message
         },
       ).catchError((error) {
+         print('Error saving user: $error');
         if (error.toString().contains('UNIQUE constraint failed')) {
           MessagesApp.showCustom(
             context,
@@ -95,7 +98,7 @@ class _SignUpState extends State<SignUp> {
               children: <Widget>[
                 const UserLoginHeader('Cadastrar Login'),
                 UserTextField(
-                  hintName: 'login',
+                  hintName: 'Usuário',
                   icon: Icons.person,
                   controller: _userLoginController,
                 ),
@@ -105,7 +108,7 @@ class _SignUpState extends State<SignUp> {
                   controller: _userNameController,
                 ),
                 UserTextField(
-                  hintName: 'Email',
+                  hintName: 'E-mail',
                   icon: Icons.email,
                   controller: _userEmailController,
                   inputType: TextInputType.emailAddress,
@@ -139,26 +142,26 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.only(
-                    top: 20,
-                    left: 10,
-                    right: 10,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      const Text('Possui uma Conta???'),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(context,
-                              RoutesApp.home, (Route<dynamic> route) => false);
-                        },
-                        child: const Text('Cadastra-se'),
-                      )
-                    ],
-                  ),
-                ),
+                // Container(
+                //   padding: const EdgeInsets.only(
+                //     top: 20,
+                //     left: 10,
+                //     right: 10,
+                //   ),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: <Widget>[
+                //       const Text('Possui uma Conta???'),
+                //       TextButton(
+                //         onPressed: () {
+                //           Navigator.pushNamedAndRemoveUntil(context,
+                //               RoutesApp.home, (Route<dynamic> route) => false);
+                //         },
+                //         child: const Text('Cadastra-se'),
+                //       )
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),

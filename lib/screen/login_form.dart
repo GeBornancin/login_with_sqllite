@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../common/messages/messages.dart';
 import '../common/routes/view_routes.dart';
 import '../components/user_login_header.dart';
@@ -18,6 +18,8 @@ class _LoginFormState extends State<LoginForm> {
   final _userPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  bool _rememberUser = false; //lembrar usuario
+
   @override
   void dispose() {
     _userLoginController.dispose();
@@ -25,13 +27,32 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
+  void _saveUsernameToPrefs(String username) async {
+    if (_rememberUser) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('username', username);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsernameFromPrefs();
+  }
+
+  void _loadUsernameFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    if (username != null) {
+      setState(() {
+        _userLoginController.text = username;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login With Signup'),
-        //automaticallyImplyLeading: false,
-      ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -40,9 +61,10 @@ class _LoginFormState extends State<LoginForm> {
             child: Column(
               //mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                const SizedBox(height: 60),
                 const UserLoginHeader('Login'),
                 UserTextField(
-                  hintName: 'Login',
+                  hintName: 'Usuário',
                   icon: Icons.person_2_outlined,
                   controller: _userLoginController,
                 ),
@@ -51,6 +73,16 @@ class _LoginFormState extends State<LoginForm> {
                   hintName: 'Senha',
                   icon: Icons.lock,
                   controller: _userPasswordController,
+                ),
+                CheckboxListTile(
+                  value: _rememberUser,
+                  onChanged: (value) {
+                    setState(() {
+                      _rememberUser = value!;
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: const Text('Lembrar usuário?'),
                 ),
                 Container(
                   padding: const EdgeInsets.only(
@@ -69,29 +101,31 @@ class _LoginFormState extends State<LoginForm> {
                           _userLoginController.text.trim(),
                           _userPasswordController.text.trim(),
                         )
-                            .then(
-                          (user) {
-                            if (user == null) {
-                              MessagesApp.showCustom(
-                                  context, MessagesApp.errorUserNoExist);
-                            } else {
-                              Navigator.pushNamed(
-                                context,
-                                RoutesApp.loginUpdate,
-                                arguments: user,
-                              );
+                            .then((user) {
+                          if (user == null) {
+                            MessagesApp.showCustom(
+                                context, MessagesApp.errorUserNoExist);
+                          } else {
+                            if (_rememberUser) {
+                              _saveUsernameToPrefs(
+                                  _userLoginController.text.trim());
                             }
-                          },
-                        ).catchError(
-                          (_) => MessagesApp.showCustom(
-                              context, MessagesApp.errorDefault),
-                        );
+                            Navigator.pushNamed(
+                              context,
+                              RoutesApp.listBook,
+                              arguments: user,
+                            );
+                          }
+                        }).catchError((_) {
+                          MessagesApp.showCustom(
+                              context, MessagesApp.errorDefault);
+                        });
                       }
                     },
                     style:
                         ElevatedButton.styleFrom(shape: const StadiumBorder()),
                     child: const Text(
-                      'Login',
+                      'Entrar',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -105,7 +139,7 @@ class _LoginFormState extends State<LoginForm> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const Text('Possui uma Conta???'),
+                      const Text('Não tem uma conta?'),
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamedAndRemoveUntil(
@@ -113,7 +147,7 @@ class _LoginFormState extends State<LoginForm> {
                               RoutesApp.loginSgnup,
                               (Route<dynamic> route) => false);
                         },
-                        child: const Text('Cadastra-se'),
+                        child: const Text('Cadastrar-se'),
                       )
                     ],
                   ),

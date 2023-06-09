@@ -17,12 +17,12 @@ class UserLoginHeader extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Image.asset(
-          'assets/images/login.png',
-          height: 180,
+          'assets/images/livro.png',
+          height: 200,
         ),
         const SizedBox(height: 20),
         const Text(
-          'Aula de Dispositivos Móveis',
+          'BookPoint',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 25,

@@ -7,7 +7,7 @@ import '../model/user_model.dart';
 import '../common/messages/messages.dart';
 import '../components/user_text_field.dart';
 import '../external/database/db_sql_lite.dart';
-
+import '../components/user_app_bar.dart';
 class UpdateUser extends StatefulWidget {
   //UserModel user;
   // UpdateUser(this.user, {super.key});
@@ -26,12 +26,14 @@ class _UpdateUserFormState extends State<UpdateUser> {
   final _userPasswordConfirmController = TextEditingController();
   late final UserModel user;
 
+
   @override
   void didChangeDependencies() {
     user = ModalRoute.of(context)!.settings.arguments as UserModel;
     _getUserData(user);
     super.didChangeDependencies();
   }
+
 
   _getUserData(UserModel user) async {
     setState(() {
@@ -102,7 +104,7 @@ class _UpdateUserFormState extends State<UpdateUser> {
               dialogType: DialogType.success,
               title: MessagesApp.successUserDelete,
               btnOkOnPress: () => Navigator.pushNamedAndRemoveUntil(
-                  context, RoutesApp.home, (Route<dynamic> route) => false),
+                  context, RoutesApp.loginSgnIn, (Route<dynamic> route) => false),
               btnOkText: 'OK',
             ).show();
           },
@@ -124,9 +126,20 @@ class _UpdateUserFormState extends State<UpdateUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Atualização de Usuário'),
+       appBar: UserAppBar(
+      icon: IconButton(
+        icon: const Icon(Icons.edit),
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            RoutesApp.loginSgnIn,
+            arguments: user,
+          );
+        },
+        
       ),
+      controller: _userLoginController,
+    ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -137,7 +150,7 @@ class _UpdateUserFormState extends State<UpdateUser> {
               children: <Widget>[
                 const UserLoginHeader('Atualização dos Dados'),
                 UserTextField(
-                  hintName: 'login',
+                  hintName: 'Usuário',
                   icon: Icons.person,
                   controller: _userLoginController,
                   enableField: false,
